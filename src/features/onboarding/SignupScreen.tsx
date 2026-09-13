@@ -81,10 +81,6 @@ export function SignupScreen() {
             <span className="absolute left-4 text-xs bg-black/10 rounded-full px-2 py-0.5">בקרוב</span>
           </button>
         )}
-        <button className="tap-scale h-14 rounded-2xl bg-black border border-border text-white font-semibold flex items-center justify-center gap-2 opacity-60 relative">
-          <span> הרשמה עם Apple</span>
-          <span className="absolute left-4 text-xs bg-white/10 rounded-full px-2 py-0.5">בקרוב</span>
-        </button>
       </div>
 
       <div className="flex items-center gap-3 mb-6">

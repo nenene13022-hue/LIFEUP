@@ -40,6 +40,12 @@ export function GoalSelectionScreen() {
         המשך
         <ArrowLeft size={20} />
       </Button>
+      <button
+        onClick={() => navigate("/onboarding/financial", { state: { goalTypes: [] } })}
+        className="tap-scale text-text-muted text-sm underline mt-4 mx-auto"
+      >
+        דלג בינתיים
+      </button>
     </div>
   );
 }

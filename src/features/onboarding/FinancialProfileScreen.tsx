@@ -30,6 +30,19 @@ export function FinancialProfileScreen() {
     navigate("/onboarding/create-goal", { state: { goalTypes } });
   }
 
+  async function skip() {
+    setSaving(true);
+    await saveFinancialProfile({
+      monthlyIncome: Number(income) || 0,
+      fixedExpenses: Number(fixed) || 0,
+      currentSavings: Number(savings) || 0,
+      currentDebt: Number(debt) || 0,
+      debtMonthlyPayment: 0,
+    });
+    setSaving(false);
+    navigate("/onboarding/create-goal", { state: { goalTypes } });
+  }
+
   return (
     <div className="min-h-screen flex flex-col px-6 py-10">
       <ScreenHeader title="בואו נבין את המצב שלך" subtitle="לא חייבים מספר מדויק. הערכה מספיקה." />
@@ -52,6 +65,9 @@ export function FinancialProfileScreen() {
         המשך
         <ArrowLeft size={20} />
       </Button>
+      <button onClick={skip} disabled={saving} className="tap-scale text-text-muted text-sm underline mt-4 mx-auto">
+        דלג בינתיים
+      </button>
     </div>
   );
 }
