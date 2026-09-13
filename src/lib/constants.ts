@@ -32,6 +32,9 @@ export const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
   other: "#9CA3AF",
 };
 
+export const POSITIVE_COLOR = "#34D399";
+export const NEGATIVE_COLOR = "#F87171";
+
 export function expenseCategoryMeta(key: ExpenseCategory) {
   return EXPENSE_CATEGORIES.find((c) => c.key === key) ?? EXPENSE_CATEGORIES[EXPENSE_CATEGORIES.length - 1];
 }

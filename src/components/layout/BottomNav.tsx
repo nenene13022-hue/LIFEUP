@@ -5,7 +5,7 @@ import { useApp } from "../../state/store";
 
 const items = [
   { to: "/home", icon: Home, label: "בית" },
-  { to: "/expenses", icon: CreditCard, label: "הוצאות" },
+  { to: "/expenses", icon: CreditCard, label: "תנועות" },
   { to: "/goals", icon: Target, label: "יעדים" },
   { to: "/ai", icon: Bot, label: "AI" },
 ];
