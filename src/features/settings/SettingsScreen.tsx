@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, LogOut, Crown } from "lucide-react";
+import { ChevronLeft, LogOut, Crown, X, Plus } from "lucide-react";
 import { ScreenHeader, Card, Button, Field, inputClass } from "../../components/ui/primitives";
 import { Sheet } from "../../components/ui/Sheet";
 import { useApp } from "../../state/store";
 import { applyTheme, getTheme, type Theme } from "../../lib/theme";
 import { getStoredApiKey, setStoredApiKey, clearStoredApiKey, maskApiKey } from "../../lib/ai/apiKeyStore";
+import { getQuickReplies, setQuickReplies, resetQuickReplies, DEFAULT_QUICK_REPLIES } from "../../lib/ai/quickReplies";
 
 function Row({
   emoji,
@@ -93,6 +94,10 @@ export function SettingsScreen() {
   const [storedKey, setStoredKey] = useState<string | null>(() => getStoredApiKey());
   const [apiKeyInput, setApiKeyInput] = useState("");
 
+  const [quickRepliesSheetOpen, setQuickRepliesSheetOpen] = useState(false);
+  const [quickRepliesDraft, setQuickRepliesDraft] = useState<string[]>([]);
+  const [newQuickReply, setNewQuickReply] = useState("");
+
   const excelInputRef = useRef<HTMLInputElement>(null);
   const restoreInputRef = useRef<HTMLInputElement>(null);
 
@@ -161,6 +166,37 @@ export function SettingsScreen() {
     setApiKeySheetOpen(false);
   }
 
+  function openQuickRepliesSheet() {
+    setQuickRepliesDraft(getQuickReplies());
+    setNewQuickReply("");
+    setQuickRepliesSheetOpen(true);
+  }
+
+  function updateQuickReplyDraft(index: number, value: string) {
+    setQuickRepliesDraft((prev) => prev.map((v, i) => (i === index ? value : v)));
+  }
+
+  function removeQuickReplyDraft(index: number) {
+    setQuickRepliesDraft((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function addQuickReplyDraft() {
+    const trimmed = newQuickReply.trim();
+    if (!trimmed) return;
+    setQuickRepliesDraft((prev) => [...prev, trimmed]);
+    setNewQuickReply("");
+  }
+
+  function saveQuickReplies() {
+    setQuickReplies(quickRepliesDraft);
+    setQuickRepliesSheetOpen(false);
+  }
+
+  function resetQuickRepliesToDefault() {
+    resetQuickReplies();
+    setQuickRepliesDraft(DEFAULT_QUICK_REPLIES);
+  }
+
   async function handleDeleteAll() {
     setBusy(true);
     await deleteAllData();
@@ -204,6 +240,7 @@ export function SettingsScreen() {
           value={storedKey ? maskApiKey(storedKey) : "משותף (ברירת מחדל)"}
           onClick={openApiKeySheet}
         />
+        <Row emoji="⚡" label="תשובות מהירות ב-AI" onClick={openQuickRepliesSheet} />
         <Row emoji="🌐" label="שפה" value="עברית" />
         <Row emoji="₪" label="מטבע" value="שקל (₪)" />
         <Row emoji="🔐" label="פרטיות ואבטחה" onClick={() => setInfoSheet("privacy")} />
@@ -317,6 +354,60 @@ export function SettingsScreen() {
         <p className="text-text-muted text-xs mt-4 leading-relaxed">
           אין לך מפתח? אפשר ליצור אחד בחינם ב-Google AI Studio (aistudio.google.com) עם חשבון Google.
         </p>
+      </Sheet>
+
+      <Sheet open={quickRepliesSheetOpen} onClose={() => setQuickRepliesSheetOpen(false)} title="תשובות מהירות ב-AI">
+        <p className="text-sm text-text-secondary leading-relaxed mb-4">
+          אלה הכפתורים שמופיעים תמיד מעל שורת ההודעה בצ'אט עם ה-AI. אפשר לערוך, להסיר ולהוסיף לפי מה שהכי שימושי לך.
+        </p>
+        <div className="flex flex-col gap-2 mb-3">
+          {quickRepliesDraft.map((q, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                className={inputClass + " h-11 text-sm"}
+                value={q}
+                onChange={(e) => updateQuickReplyDraft(i, e.target.value)}
+              />
+              <button
+                onClick={() => removeQuickReplyDraft(i)}
+                className="tap-scale w-11 h-11 rounded-2xl bg-surface-2 border border-border flex items-center justify-center shrink-0 text-negative"
+                aria-label="הסר"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ))}
+          {quickRepliesDraft.length === 0 && (
+            <p className="text-text-muted text-xs text-center py-3">אין תשובות מהירות כרגע.</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mb-4">
+          <input
+            className={inputClass + " h-11 text-sm"}
+            placeholder="תשובה מהירה חדשה..."
+            value={newQuickReply}
+            onChange={(e) => setNewQuickReply(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addQuickReplyDraft();
+            }}
+          />
+          <button
+            onClick={addQuickReplyDraft}
+            disabled={!newQuickReply.trim()}
+            className="tap-scale w-11 h-11 rounded-2xl bg-gradient-brand text-black flex items-center justify-center shrink-0 disabled:opacity-40"
+            aria-label="הוסף"
+          >
+            <Plus size={18} />
+          </button>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Button className="w-full" onClick={saveQuickReplies}>
+            שמור
+          </Button>
+          <Button variant="secondary" className="w-full" onClick={resetQuickRepliesToDefault}>
+            אפס לברירת מחדל
+          </Button>
+        </div>
       </Sheet>
 
       <Sheet open={resultMessage !== null} onClose={() => setResultMessage(null)} title="עדכון">

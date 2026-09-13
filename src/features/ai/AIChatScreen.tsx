@@ -5,16 +5,9 @@ import { ScreenHeader, Button } from "../../components/ui/primitives";
 import { callAgent, buildAgentContext, type AgentTurnHistory } from "../../lib/ai/agentClient";
 import { planToolCall, type AgentPlan } from "../../lib/ai/agentActions";
 import { askLifeUp } from "../../lib/ai/lifeupAI";
+import { getQuickReplies } from "../../lib/ai/quickReplies";
 
 const MAX_HISTORY_TURNS = 10;
-
-const EXAMPLES = [
-  "מה המצב שלי החודש?",
-  "כמה אני יכול להוציא היום?",
-  "תוסיף לי הוצאה של 85 שקל על מסעדה היום",
-  "קיבלתי משכורת של 7,000 ₪. איך כדאי לחלק אותה?",
-  "שים 300 שקל ביעד שלי",
-];
 
 type Pending =
   | { kind: "confirm_delete"; expenseId: string; summary: string }
@@ -40,6 +33,7 @@ export function AIChatScreen() {
   const [sending, setSending] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
   const [showUndo, setShowUndo] = useState(false);
+  const [quickReplies] = useState<string[]>(() => getQuickReplies());
   const listRef = useRef<HTMLDivElement>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -173,17 +167,9 @@ export function AIChatScreen() {
 
       <div ref={listRef} className="flex-1 overflow-y-auto -mx-5 px-5 pb-3">
         {conversations.length === 0 ? (
-          <div className="flex flex-col gap-2 mt-2">
-            <p className="text-text-secondary text-sm mb-1">כמה דוגמאות למה שאפשר לומר:</p>
-            {EXAMPLES.map((q) => (
-              <button
-                key={q}
-                onClick={() => submit(q)}
-                className="tap-scale text-start bg-surface-2 border border-border rounded-2xl px-4 py-3 text-sm"
-              >
-                {q}
-              </button>
-            ))}
+          <div className="flex flex-col items-center text-center gap-2 mt-10 px-4">
+            <span className="text-3xl">🤖</span>
+            <p className="text-text-secondary text-sm">אפשר לשאול אותי כל דבר, או לבחור אחת מהתשובות המהירות למטה.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -247,6 +233,21 @@ export function AIChatScreen() {
           <Undo2 size={15} />
           בטל את הפעולה האחרונה
         </button>
+      )}
+
+      {quickReplies.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 [&::-webkit-scrollbar]:hidden">
+          {quickReplies.map((q) => (
+            <button
+              key={q}
+              onClick={() => submit(q)}
+              disabled={sending}
+              className="tap-scale shrink-0 whitespace-nowrap bg-surface-2 border border-border rounded-full px-3.5 py-2 text-xs disabled:opacity-40"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
       )}
 
       <div className="flex items-center gap-2 pt-2 pb-1 sticky bottom-0 bg-bg">
