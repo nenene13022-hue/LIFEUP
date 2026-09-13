@@ -10,14 +10,16 @@ import { getQuickReplies } from "../../lib/ai/quickReplies";
 
 const MAX_HISTORY_TURNS = 10;
 
-function AiAvatar({ size = 40 }: { size?: number }) {
+function AiAvatar({ size = 40, pulse = true }: { size?: number; pulse?: boolean }) {
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
-      <motion.div
-        className="absolute inset-0 rounded-full bg-gradient-brand opacity-40 blur-md"
-        animate={{ scale: [1, 1.25, 1] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-      />
+      {pulse && (
+        <motion.div
+          className="absolute inset-0 rounded-full bg-gradient-brand opacity-40 blur-md"
+          animate={{ scale: [1, 1.25, 1] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
       <div
         className="relative rounded-full bg-gradient-brand text-black flex items-center justify-center"
         style={{ width: size, height: size }}
@@ -26,6 +28,10 @@ function AiAvatar({ size = 40 }: { size?: number }) {
       </div>
     </div>
   );
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
 }
 
 function TypingDots() {
@@ -212,20 +218,27 @@ export function AIChatScreen() {
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {conversations.map((c, i) => (
               <motion.div
                 key={c.id}
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-1"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.28, ease: "easeOut", delay: Math.min(i, 6) * 0.03 }}
               >
-                <div className="self-end max-w-[85%] bg-gradient-brand text-black rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm font-medium">
+                <div className="self-start max-w-[78%] bg-gradient-brand text-black rounded-2xl rounded-br-md px-4 py-2.5 text-sm font-medium shadow-sm">
                   {c.message}
                 </div>
-                <div className="self-start max-w-[85%] bg-surface-2 border border-border rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm whitespace-pre-line">
-                  {c.response}
+
+                <div className="self-end flex items-end gap-2 max-w-[85%]">
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="bg-surface-2 border border-border rounded-2xl rounded-bl-md px-4 py-2.5 text-sm whitespace-pre-line shadow-sm">
+                      {c.response}
+                    </div>
+                    <span className="text-[10px] text-text-muted">{formatTime(c.createdAt)}</span>
+                  </div>
+                  <AiAvatar size={24} pulse={false} />
                 </div>
               </motion.div>
             ))}
@@ -233,14 +246,17 @@ export function AIChatScreen() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="self-start bg-surface-2 border border-border rounded-2xl rounded-tr-sm px-3 py-2"
+                className="self-end flex items-end gap-2 max-w-[85%]"
               >
-                <TypingDots />
+                <div className="bg-surface-2 border border-border rounded-2xl rounded-bl-md px-3 py-2 shadow-sm">
+                  <TypingDots />
+                </div>
+                <AiAvatar size={24} pulse={false} />
               </motion.div>
             )}
 
             {pending?.kind === "confirm_delete" && (
-              <div className="self-start max-w-[90%] bg-surface-2 border border-negative/40 rounded-2xl p-3 flex flex-col gap-2">
+              <div className="self-end max-w-[90%] bg-surface-2 border border-negative/40 rounded-2xl p-3 flex flex-col gap-2">
                 <p className="text-sm">{pending.summary}</p>
                 <div className="flex gap-2">
                   <Button variant="danger" size="sm" onClick={confirmDeletion}>
@@ -254,7 +270,7 @@ export function AIChatScreen() {
             )}
 
             {(pending?.kind === "pick_goal" || pending?.kind === "pick_expense") && (
-              <div className="self-start max-w-[90%] flex flex-col gap-2">
+              <div className="self-end max-w-[90%] flex flex-col gap-2">
                 {pending.options.map((opt) => (
                   <button
                     key={opt.id}
