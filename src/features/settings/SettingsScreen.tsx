@@ -213,6 +213,7 @@ export function SettingsScreen() {
 
       <p className="text-text-secondary text-sm font-medium mb-2 px-1">ניהול נתונים</p>
       <Card className="mb-4 divide-y divide-border">
+        <Row emoji="🧾" label="דוח PDF חודשי" onClick={() => navigate("/settings/report")} />
         <Row emoji="📊" label="ייצוא נתונים ל-Excel" onClick={exportExcel} />
         <Row emoji="📥" label="ייבוא מ-Excel" onClick={() => excelInputRef.current?.click()} />
         <Row emoji="💾" label="גיבוי (הורדת קובץ)" onClick={exportBackup} />

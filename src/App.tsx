@@ -17,6 +17,7 @@ import { AIChatScreen } from "./features/ai/AIChatScreen";
 import { BeforeYouBuyScreen } from "./features/beforeyoubuy/BeforeYouBuyScreen";
 import { SettingsScreen } from "./features/settings/SettingsScreen";
 import { ProfileScreen } from "./features/settings/ProfileScreen";
+import { MonthlyReportScreen } from "./features/settings/MonthlyReportScreen";
 import { PremiumScreen } from "./features/premium/PremiumScreen";
 
 function SplashLoading() {
@@ -101,6 +102,15 @@ export default function App() {
         <Route path="/settings/profile" element={<ProfileScreen />} />
         <Route path="/premium" element={<PremiumScreen />} />
       </Route>
+
+      <Route
+        path="/settings/report"
+        element={
+          <RequireOnboarded>
+            <MonthlyReportScreen />
+          </RequireOnboarded>
+        }
+      />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

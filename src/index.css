@@ -138,3 +138,13 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+@media print {
+  body,
+  #root {
+    background: #ffffff !important;
+  }
+  #root {
+    max-width: none !important;
+  }
+}
