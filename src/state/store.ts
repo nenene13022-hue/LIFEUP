@@ -8,6 +8,7 @@ import type {
   AppNotification,
   Achievement,
   AIConversation,
+  BalanceCheckin,
   ExpenseCategory,
   GoalCategory,
 } from "../lib/types/models";
@@ -36,6 +37,7 @@ interface AppState {
   notifications: AppNotification[];
   achievements: Achievement[];
   aiConversations: AIConversation[];
+  balanceCheckins: BalanceCheckin[];
   budget: BudgetSummary | null;
   quickAddOpen: boolean;
   lastAction: LastAction | null;
@@ -68,6 +70,7 @@ interface AppState {
   markAllNotificationsRead: () => Promise<void>;
   sendAIMessage: (message: string) => Promise<void>;
   logAIConversation: (message: string, response: string) => Promise<void>;
+  addBalanceCheckin: (balance: number, date?: string) => Promise<void>;
   exportBackup: () => Promise<void>;
   restoreFromBackupFile: (file: File) => Promise<void>;
   exportExcel: () => Promise<void>;
@@ -86,6 +89,7 @@ export const useApp = create<AppState>((set, get) => ({
   notifications: [],
   achievements: [],
   aiConversations: [],
+  balanceCheckins: [],
   budget: null,
   quickAddOpen: false,
   lastAction: null,
@@ -104,16 +108,18 @@ export const useApp = create<AppState>((set, get) => ({
   },
 
   loadAll: async (userId: string) => {
-    const [user, profile, goals, expenses, income, notifications, achievements, aiConversations] = await Promise.all([
-      repo.getUser(userId),
-      repo.getFinancialProfile(userId),
-      repo.getGoals(userId),
-      repo.getExpenses(userId),
-      repo.getIncomeList(userId),
-      repo.getNotifications(userId),
-      repo.getAchievements(userId),
-      repo.getAIConversations(userId),
-    ]);
+    const [user, profile, goals, expenses, income, notifications, achievements, aiConversations, balanceCheckins] =
+      await Promise.all([
+        repo.getUser(userId),
+        repo.getFinancialProfile(userId),
+        repo.getGoals(userId),
+        repo.getExpenses(userId),
+        repo.getIncomeList(userId),
+        repo.getNotifications(userId),
+        repo.getAchievements(userId),
+        repo.getAIConversations(userId),
+        repo.getBalanceCheckins(userId),
+      ]);
     const budget = profile ? calcBudgetSummary(profile, goals, expenses) : null;
     set({
       userId,
@@ -125,6 +131,7 @@ export const useApp = create<AppState>((set, get) => ({
       notifications,
       achievements,
       aiConversations,
+      balanceCheckins,
       budget,
     });
   },
@@ -160,6 +167,8 @@ export const useApp = create<AppState>((set, get) => ({
       income: [],
       notifications: [],
       achievements: [],
+      aiConversations: [],
+      balanceCheckins: [],
       budget: null,
     });
   },
@@ -296,6 +305,13 @@ export const useApp = create<AppState>((set, get) => ({
     await get().loadAll(userId);
   },
 
+  addBalanceCheckin: async (balance: number, date?: string) => {
+    const userId = get().userId;
+    if (!userId) return;
+    await repo.addBalanceCheckin(userId, balance, date ?? new Date().toISOString().slice(0, 10));
+    await get().loadAll(userId);
+  },
+
   exportBackup: async () => {
     const userId = get().userId;
     if (!userId) return;
@@ -342,6 +358,7 @@ export const useApp = create<AppState>((set, get) => ({
       notifications: [],
       achievements: [],
       aiConversations: [],
+      balanceCheckins: [],
       budget: null,
     });
   },

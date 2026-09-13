@@ -8,6 +8,7 @@ import type {
   AIConversation,
   AppNotification,
   Achievement,
+  BalanceCheckin,
 } from "../types/models";
 
 interface LifeUpDB extends DBSchema {
@@ -19,40 +20,47 @@ interface LifeUpDB extends DBSchema {
   aiConversations: { key: string; value: AIConversation; indexes: { userId: string } };
   notifications: { key: string; value: AppNotification; indexes: { userId: string } };
   achievements: { key: string; value: Achievement; indexes: { userId: string } };
+  balanceCheckins: { key: string; value: BalanceCheckin; indexes: { userId: string } };
   session: { key: string; value: { key: string; userId: string } };
 }
 
 const DB_NAME = "lifeup-db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBPDatabase<LifeUpDB>> | null = null;
 
 export function getDB() {
   if (!dbPromise) {
     dbPromise = openDB<LifeUpDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        db.createObjectStore("users", { keyPath: "id" });
-        db.createObjectStore("financialProfiles", { keyPath: "userId" });
+      upgrade(db, oldVersion) {
+        if (oldVersion < 1) {
+          db.createObjectStore("users", { keyPath: "id" });
+          db.createObjectStore("financialProfiles", { keyPath: "userId" });
 
-        const goals = db.createObjectStore("goals", { keyPath: "id" });
-        goals.createIndex("userId", "userId");
+          const goals = db.createObjectStore("goals", { keyPath: "id" });
+          goals.createIndex("userId", "userId");
 
-        const expenses = db.createObjectStore("expenses", { keyPath: "id" });
-        expenses.createIndex("userId", "userId");
+          const expenses = db.createObjectStore("expenses", { keyPath: "id" });
+          expenses.createIndex("userId", "userId");
 
-        const income = db.createObjectStore("income", { keyPath: "id" });
-        income.createIndex("userId", "userId");
+          const income = db.createObjectStore("income", { keyPath: "id" });
+          income.createIndex("userId", "userId");
 
-        const ai = db.createObjectStore("aiConversations", { keyPath: "id" });
-        ai.createIndex("userId", "userId");
+          const ai = db.createObjectStore("aiConversations", { keyPath: "id" });
+          ai.createIndex("userId", "userId");
 
-        const notifications = db.createObjectStore("notifications", { keyPath: "id" });
-        notifications.createIndex("userId", "userId");
+          const notifications = db.createObjectStore("notifications", { keyPath: "id" });
+          notifications.createIndex("userId", "userId");
 
-        const achievements = db.createObjectStore("achievements", { keyPath: "id" });
-        achievements.createIndex("userId", "userId");
+          const achievements = db.createObjectStore("achievements", { keyPath: "id" });
+          achievements.createIndex("userId", "userId");
 
-        db.createObjectStore("session", { keyPath: "key" });
+          db.createObjectStore("session", { keyPath: "key" });
+        }
+        if (oldVersion < 2) {
+          const checkins = db.createObjectStore("balanceCheckins", { keyPath: "id" });
+          checkins.createIndex("userId", "userId");
+        }
       },
     });
   }

@@ -76,6 +76,14 @@ export interface Income {
   description?: string;
 }
 
+export interface BalanceCheckin {
+  id: string;
+  userId: string;
+  balance: number;
+  date: string;
+  createdAt: string;
+}
+
 export interface AIConversation {
   id: string;
   userId: string;

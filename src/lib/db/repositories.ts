@@ -8,6 +8,7 @@ import type {
   AIConversation,
   AppNotification,
   Achievement,
+  BalanceCheckin,
 } from "../types/models";
 
 // ---------- Session ----------
@@ -187,6 +188,31 @@ export async function getAIConversations(userId: string): Promise<AIConversation
   const db = await getDB();
   const all = await db.getAllFromIndex("aiConversations", "userId", userId);
   return all.sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1));
+}
+
+// ---------- Balance check-ins ----------
+export async function addBalanceCheckin(userId: string, balance: number, date: string): Promise<BalanceCheckin> {
+  const db = await getDB();
+  const row: BalanceCheckin = {
+    id: uid("checkin"),
+    userId,
+    balance,
+    date,
+    createdAt: new Date().toISOString(),
+  };
+  await db.put("balanceCheckins", row);
+  return row;
+}
+
+export async function getBalanceCheckins(userId: string): Promise<BalanceCheckin[]> {
+  const db = await getDB();
+  const all = await db.getAllFromIndex("balanceCheckins", "userId", userId);
+  return all.sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
+export async function deleteBalanceCheckin(id: string) {
+  const db = await getDB();
+  await db.delete("balanceCheckins", id);
 }
 
 // ---------- Notifications ----------

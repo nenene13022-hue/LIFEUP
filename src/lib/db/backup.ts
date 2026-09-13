@@ -8,6 +8,7 @@ import type {
   Achievement,
   AppNotification,
   AIConversation,
+  BalanceCheckin,
 } from "../types/models";
 
 export interface BackupData {
@@ -21,6 +22,7 @@ export interface BackupData {
   achievements: Achievement[];
   notifications: AppNotification[];
   aiConversations: AIConversation[];
+  balanceCheckins: BalanceCheckin[];
 }
 
 const USER_STORES = [
@@ -30,11 +32,12 @@ const USER_STORES = [
   "achievements",
   "notifications",
   "aiConversations",
+  "balanceCheckins",
 ] as const;
 
 export async function buildBackup(userId: string): Promise<BackupData> {
   const db = await getDB();
-  const [user, profile, goals, expenses, income, achievements, notifications, aiConversations] =
+  const [user, profile, goals, expenses, income, achievements, notifications, aiConversations, balanceCheckins] =
     await Promise.all([
       db.get("users", userId),
       db.get("financialProfiles", userId),
@@ -44,6 +47,7 @@ export async function buildBackup(userId: string): Promise<BackupData> {
       db.getAllFromIndex("achievements", "userId", userId),
       db.getAllFromIndex("notifications", "userId", userId),
       db.getAllFromIndex("aiConversations", "userId", userId),
+      db.getAllFromIndex("balanceCheckins", "userId", userId),
     ]);
   if (!user) throw new Error("משתמש לא נמצא");
   return {
@@ -57,6 +61,7 @@ export async function buildBackup(userId: string): Promise<BackupData> {
     achievements,
     notifications,
     aiConversations,
+    balanceCheckins,
   };
 }
 
@@ -114,6 +119,7 @@ export async function restoreBackup(currentUserId: string, backup: BackupData) {
   for (const a of backup.achievements ?? []) await db.put("achievements", { ...a, userId: currentUserId });
   for (const n of backup.notifications ?? []) await db.put("notifications", { ...n, userId: currentUserId });
   for (const c of backup.aiConversations ?? []) await db.put("aiConversations", { ...c, userId: currentUserId });
+  for (const b of backup.balanceCheckins ?? []) await db.put("balanceCheckins", { ...b, userId: currentUserId });
 }
 
 export async function deleteAllUserData(userId: string) {
