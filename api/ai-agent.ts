@@ -1,7 +1,11 @@
 import { GoogleGenerativeAI, SchemaType, type FunctionDeclaration } from "@google/generative-ai";
 import { TOOL_DECLARATIONS, type ToolCall } from "../src/lib/ai/agentTools";
 
-export const config = { runtime: "nodejs" };
+// This handler uses the Web Fetch API signature (Request in, Response out),
+// which is the Edge Runtime contract on Vercel — not the classic Node.js
+// (req, res) signature. Declaring "nodejs" here while using this signature is
+// what caused FUNCTION_INVOCATION_FAILED in production.
+export const config = { runtime: "edge" };
 
 // Best-effort per-instance rate limit. Serverless instances are ephemeral and this
 // resets on cold start, so it is a speed bump against casual abuse, not a real
