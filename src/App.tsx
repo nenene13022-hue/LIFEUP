@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useApp } from "./state/store";
 import { LogoMark } from "./components/Logo";
 import { AppShell } from "./components/layout/AppShell";
+import { PinUnlockScreen } from "./features/lock/PinUnlockScreen";
+import { hasPinSet } from "./lib/security/pinLock";
 
 import { WelcomeScreen } from "./features/onboarding/WelcomeScreen";
 import { SignupScreen } from "./features/onboarding/SignupScreen";
@@ -48,12 +50,14 @@ function RequireUser({ children }: { children: React.ReactNode }) {
 export default function App() {
   const ready = useApp((s) => s.ready);
   const init = useApp((s) => s.init);
+  const [unlocked, setUnlocked] = useState(() => !hasPinSet());
 
   useEffect(() => {
     init();
   }, [init]);
 
   if (!ready) return <SplashLoading />;
+  if (!unlocked) return <PinUnlockScreen onUnlock={() => setUnlocked(true)} />;
 
   return (
     <Routes>

@@ -3,14 +3,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BottomNav } from "./BottomNav";
 import { QuickAddSheet } from "./QuickAddSheet";
 import { FloatingOrbs } from "./FloatingOrbs";
+import { useSwipeBack } from "../../hooks/useSwipeBack";
 
 export function AppShell() {
   const location = useLocation();
+  const { ref, x } = useSwipeBack<HTMLDivElement>();
 
   return (
     <div className="relative min-h-screen pb-28 overflow-hidden">
       <FloatingOrbs />
-      <div className="relative px-5 pt-6" style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}>
+      <motion.div
+        ref={ref}
+        className="relative px-5 pt-6"
+        style={{ x, paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}
+      >
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={location.pathname}
@@ -22,7 +28,7 @@ export function AppShell() {
             <Outlet />
           </motion.div>
         </AnimatePresence>
-      </div>
+      </motion.div>
       <BottomNav />
       <QuickAddSheet />
     </div>

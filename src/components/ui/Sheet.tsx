@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -13,10 +14,15 @@ export function Sheet({
   title: string;
   children: ReactNode;
 }) {
-  return (
+  // Portaled to document.body: a "fixed" element inside AppShell's swipe-back
+  // wrapper would otherwise be fixed relative to THAT element instead of the
+  // viewport, because framer-motion's x/y style props compile to a CSS
+  // transform, and a transformed ancestor becomes the containing block for
+  // any position:fixed descendant — the sheet would scroll with the page.
+  return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center" data-swipe-ignore>
           <motion.div
             className="absolute inset-0 bg-black/60"
             initial={{ opacity: 0 }}
@@ -45,6 +51,7 @@ export function Sheet({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

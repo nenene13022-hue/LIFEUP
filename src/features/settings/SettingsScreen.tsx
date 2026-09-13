@@ -7,6 +7,8 @@ import { useApp } from "../../state/store";
 import { applyTheme, getTheme, type Theme } from "../../lib/theme";
 import { getStoredApiKey, setStoredApiKey, clearStoredApiKey, maskApiKey } from "../../lib/ai/apiKeyStore";
 import { getQuickReplies, setQuickReplies, resetQuickReplies, DEFAULT_QUICK_REPLIES } from "../../lib/ai/quickReplies";
+import { hasPinSet, setPin as savePin, clearPin } from "../../lib/security/pinLock";
+import { PinDots, PinKeypad } from "../../components/ui/PinKeypad";
 
 function Row({
   emoji,
@@ -97,6 +99,15 @@ export function SettingsScreen() {
   const [quickRepliesSheetOpen, setQuickRepliesSheetOpen] = useState(false);
   const [quickRepliesDraft, setQuickRepliesDraft] = useState<string[]>([]);
   const [newQuickReply, setNewQuickReply] = useState("");
+
+  const [pinSheetOpen, setPinSheetOpen] = useState(false);
+  const [pinEnabled, setPinEnabled] = useState(() => hasPinSet());
+  const [settingNewPin, setSettingNewPin] = useState(false);
+  const [pinStep, setPinStep] = useState<"enter" | "confirm">("enter");
+  const [pinDraft, setPinDraft] = useState("");
+  const [pinValue, setPinValue] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const showPinKeypad = !pinEnabled || settingNewPin;
 
   const excelInputRef = useRef<HTMLInputElement>(null);
   const restoreInputRef = useRef<HTMLInputElement>(null);
@@ -197,6 +208,64 @@ export function SettingsScreen() {
     setQuickRepliesDraft(DEFAULT_QUICK_REPLIES);
   }
 
+  function openPinSheet() {
+    setPinStep("enter");
+    setPinDraft("");
+    setPinValue("");
+    setPinError(false);
+    setSettingNewPin(false);
+    setPinSheetOpen(true);
+  }
+
+  function startNewPinFlow() {
+    setPinStep("enter");
+    setPinDraft("");
+    setPinValue("");
+    setPinError(false);
+    setSettingNewPin(true);
+  }
+
+  function handlePinDigit(d: string) {
+    if (pinError) return;
+    const next = pinValue + d;
+    if (next.length > 4) return;
+    setPinValue(next);
+    if (next.length === 4) {
+      if (pinStep === "enter") {
+        setTimeout(() => {
+          setPinDraft(next);
+          setPinValue("");
+          setPinStep("confirm");
+        }, 150);
+      } else {
+        if (next === pinDraft) {
+          savePin(next);
+          setPinEnabled(true);
+          setSettingNewPin(false);
+          setTimeout(() => setPinSheetOpen(false), 150);
+        } else {
+          setPinError(true);
+          setTimeout(() => {
+            setPinError(false);
+            setPinValue("");
+            setPinStep("enter");
+            setPinDraft("");
+          }, 500);
+        }
+      }
+    }
+  }
+
+  function handlePinBackspace() {
+    setPinValue((v) => v.slice(0, -1));
+  }
+
+  function removePin() {
+    clearPin();
+    setPinEnabled(false);
+    setPinSheetOpen(false);
+  }
+
   async function handleDeleteAll() {
     setBusy(true);
     await deleteAllData();
@@ -221,7 +290,6 @@ export function SettingsScreen() {
 
 
       <Card className="mb-4 divide-y divide-border">
-        <Row emoji="👤" label="פרופיל" onClick={() => navigate("/settings/profile")} />
         <Row emoji="💰" label="הגדרות פיננסיות" onClick={() => navigate("/settings/profile")} />
         <Row emoji="🎯" label="היעדים שלי" onClick={() => navigate("/goals")} />
         <Row emoji="🔔" label="התראות" toggle={notifOn} onToggle={toggleNotif} />
@@ -233,6 +301,7 @@ export function SettingsScreen() {
           onClick={openApiKeySheet}
         />
         <Row emoji="⚡" label="תשובות מהירות ב-AI" onClick={openQuickRepliesSheet} />
+        <Row emoji="🔒" label="קוד נעילה (PIN)" value={pinEnabled ? "מופעל" : "כבוי"} onClick={openPinSheet} />
         <Row emoji="🌐" label="שפה" value="עברית" />
         <Row emoji="₪" label="מטבע" value="שקל (₪)" />
         <Row emoji="🔐" label="פרטיות ואבטחה" onClick={() => setInfoSheet("privacy")} />
@@ -400,6 +469,34 @@ export function SettingsScreen() {
             אפס לברירת מחדל
           </Button>
         </div>
+      </Sheet>
+
+      <Sheet
+        open={pinSheetOpen}
+        onClose={() => setPinSheetOpen(false)}
+        title={!showPinKeypad ? "קוד נעילה" : pinStep === "enter" ? "בחר קוד נעילה" : "אימות קוד"}
+      >
+        {!showPinKeypad ? (
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-text-secondary leading-relaxed">
+              נעילת PIN פעילה — האפליקציה תבקש את הקוד בכל פעם שנפתחת מחדש. אפשר להסיר אותה או להגדיר קוד חדש.
+            </p>
+            <Button variant="secondary" className="w-full" onClick={removePin}>
+              הסר קוד נעילה
+            </Button>
+            <button onClick={startNewPinFlow} className="tap-scale text-text-secondary text-sm underline mx-auto">
+              הגדר קוד חדש
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-6 py-2">
+            <p className="text-sm text-text-secondary text-center">
+              {pinStep === "enter" ? "הזן קוד בן 4 ספרות" : "הזן שוב לאימות"}
+            </p>
+            <PinDots length={4} filled={pinValue.length} error={pinError} />
+            <PinKeypad onDigit={handlePinDigit} onBackspace={handlePinBackspace} />
+          </div>
+        )}
       </Sheet>
 
       <Sheet open={resultMessage !== null} onClose={() => setResultMessage(null)} title="עדכון">
