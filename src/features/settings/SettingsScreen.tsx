@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, LogOut, Crown, X, Plus } from "lucide-react";
+import { ChevronLeft, LogOut, X, Plus } from "lucide-react";
 import { ScreenHeader, Card, Button, Field, inputClass } from "../../components/ui/primitives";
 import { Sheet } from "../../components/ui/Sheet";
 import { useApp } from "../../state/store";
@@ -219,14 +219,6 @@ export function SettingsScreen() {
         </div>
       </Card>
 
-      <button
-        onClick={() => navigate("/premium")}
-        className="tap-scale w-full mb-4 rounded-2xl p-4 flex items-center gap-3 bg-gradient-brand text-black"
-      >
-        <Crown size={20} />
-        <span className="flex-1 text-start font-semibold text-sm">LifeUp PRO — יותר שליטה, פחות לחץ</span>
-        <ChevronLeft size={16} />
-      </button>
 
       <Card className="mb-4 divide-y divide-border">
         <Row emoji="👤" label="פרופיל" onClick={() => navigate("/settings/profile")} />

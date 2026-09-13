@@ -20,7 +20,6 @@ export async function seedDemoUser(): Promise<string> {
     currency: "ILS",
     language: "he",
     authProvider: "demo",
-    isPremium: false,
   });
 
   await upsertFinancialProfile(user.id, {

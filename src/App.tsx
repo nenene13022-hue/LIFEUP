@@ -19,7 +19,6 @@ import { FinancialHealthScreen } from "./features/insights/FinancialHealthScreen
 import { SettingsScreen } from "./features/settings/SettingsScreen";
 import { ProfileScreen } from "./features/settings/ProfileScreen";
 import { MonthlyReportScreen } from "./features/settings/MonthlyReportScreen";
-import { PremiumScreen } from "./features/premium/PremiumScreen";
 
 function SplashLoading() {
   return (
@@ -102,7 +101,6 @@ export default function App() {
         <Route path="/financial-health" element={<FinancialHealthScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
         <Route path="/settings/profile" element={<ProfileScreen />} />
-        <Route path="/premium" element={<PremiumScreen />} />
       </Route>
 
       <Route

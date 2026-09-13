@@ -9,7 +9,6 @@ export interface User {
   currency: Currency;
   language: Language;
   authProvider: "email" | "google" | "apple" | "demo";
-  isPremium: boolean;
 }
 
 export interface FinancialProfile {

@@ -149,7 +149,6 @@ export const useApp = create<AppState>((set, get) => ({
       currency: "ILS",
       language: "he",
       authProvider: "email",
-      isPremium: false,
     });
     await repo.setSession(user.id);
     await get().loadAll(user.id);
