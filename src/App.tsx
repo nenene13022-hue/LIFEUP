@@ -15,6 +15,7 @@ import { GoalsScreen } from "./features/goals/GoalsScreen";
 import { GoalDetailScreen } from "./features/goals/GoalDetailScreen";
 import { AIChatScreen } from "./features/ai/AIChatScreen";
 import { BeforeYouBuyScreen } from "./features/beforeyoubuy/BeforeYouBuyScreen";
+import { FinancialHealthScreen } from "./features/insights/FinancialHealthScreen";
 import { SettingsScreen } from "./features/settings/SettingsScreen";
 import { ProfileScreen } from "./features/settings/ProfileScreen";
 import { MonthlyReportScreen } from "./features/settings/MonthlyReportScreen";
@@ -98,6 +99,7 @@ export default function App() {
         <Route path="/goals/:id" element={<GoalDetailScreen />} />
         <Route path="/ai" element={<AIChatScreen />} />
         <Route path="/before-you-buy" element={<BeforeYouBuyScreen />} />
+        <Route path="/financial-health" element={<FinancialHealthScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
         <Route path="/settings/profile" element={<ProfileScreen />} />
         <Route path="/premium" element={<PremiumScreen />} />

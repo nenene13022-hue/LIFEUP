@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Settings, ShoppingBag, ChevronLeft, Flame, Repeat, Wallet } from "lucide-react";
+import { Bell, Settings, ShoppingBag, ChevronLeft, Flame, Repeat, Wallet, Scale } from "lucide-react";
 import { Card, ProgressBar, Button, EmptyState, Badge, Field, inputClass } from "../../components/ui/primitives";
 import { Sheet } from "../../components/ui/Sheet";
 import { useApp } from "../../state/store";
@@ -270,6 +270,17 @@ export function HomeScreen() {
           <ShoppingBag size={18} />
         </div>
         <span className="flex-1 text-start text-sm font-semibold">לפני שאני קונה</span>
+        <ChevronLeft size={16} className="text-text-muted" />
+      </button>
+
+      <button
+        onClick={() => navigate("/financial-health")}
+        className="tap-scale w-full flex items-center gap-3 bg-surface-2 border border-border rounded-xl3 p-4 mb-4"
+      >
+        <div className="w-10 h-10 rounded-full bg-gradient-brand text-black flex items-center justify-center shrink-0">
+          <Scale size={18} />
+        </div>
+        <span className="flex-1 text-start text-sm font-semibold">מצב פיננסי</span>
         <ChevronLeft size={16} className="text-text-muted" />
       </button>
 
