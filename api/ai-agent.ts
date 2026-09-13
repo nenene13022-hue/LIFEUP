@@ -147,6 +147,18 @@ export default async function handler(req: Request): Promise<Response> {
     });
   } catch (err) {
     console.error("ai-agent error", err);
+    const message = err instanceof Error ? err.message : String(err);
+    const isQuotaError = /quota|resource_exhausted|429/i.test(message);
+    if (isQuotaError) {
+      return new Response(
+        JSON.stringify({
+          error: clientApiKey
+            ? "נגמרה המכסה של מפתח ה-Gemini האישי שלך. אפשר לבדוק את המכסה בחשבון Google AI Studio שלך, או להסיר את המפתח בהגדרות כדי לחזור למפתח המשותף."
+            : "נגמרה המכסה של המפתח המשותף להיום. אפשר להוסיף מפתח Gemini אישי משלך בהגדרות ← מפתח AI (Gemini) כדי להמשיך מיד.",
+        }),
+        { status: 429 }
+      );
+    }
     return new Response(JSON.stringify({ error: "משהו השתבש. נסה שוב." }), { status: 500 });
   }
 }

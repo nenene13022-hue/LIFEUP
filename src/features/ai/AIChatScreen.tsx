@@ -2,9 +2,11 @@ import { useRef, useState } from "react";
 import { Send, Undo2 } from "lucide-react";
 import { useApp } from "../../state/store";
 import { ScreenHeader, Button } from "../../components/ui/primitives";
-import { callAgent, buildAgentContext } from "../../lib/ai/agentClient";
+import { callAgent, buildAgentContext, type AgentTurnHistory } from "../../lib/ai/agentClient";
 import { planToolCall, type AgentPlan } from "../../lib/ai/agentActions";
 import { askLifeUp } from "../../lib/ai/lifeupAI";
+
+const MAX_HISTORY_TURNS = 10;
 
 const EXAMPLES = [
   "מה המצב שלי החודש?",
@@ -107,7 +109,11 @@ export function AIChatScreen() {
     setSending(true);
     try {
       const context = buildAgentContext(profile, goals, expenses);
-      const agentResponse = await callAgent(message, context);
+      const history: AgentTurnHistory[] = conversations.slice(-MAX_HISTORY_TURNS).flatMap((c) => [
+        { role: "user" as const, text: c.message },
+        { role: "model" as const, text: c.response },
+      ]);
+      const agentResponse = await callAgent(message, context, history);
       if (agentResponse.action) {
         const today = new Date().toISOString().slice(0, 10);
         const plan = planToolCall(agentResponse.action, { today, goals, expenses });
@@ -115,11 +121,18 @@ export function AIChatScreen() {
       } else {
         await logAIConversation(message, agentResponse.reply);
       }
-    } catch {
-      // Gemini unavailable (no key / network / quota) — fall back to the local
-      // rule-based assistant so the chat still answers analytical questions.
-      const response = askLifeUp(message, { profile: profile ?? undefined, goals, expenses });
-      await logAIConversation(message, response);
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : "";
+      if (/מכסה/.test(errMsg)) {
+        // Quota exceeded — tell the user plainly instead of silently degrading,
+        // since the local fallback below can't perform actions or know today's data as well.
+        await logAIConversation(message, errMsg);
+      } else {
+        // Gemini unavailable (network / no key / unexpected error) — fall back to the
+        // local rule-based assistant so the chat still answers analytical questions.
+        const response = askLifeUp(message, { profile: profile ?? undefined, goals, expenses });
+        await logAIConversation(message, response);
+      }
     } finally {
       setSending(false);
       scrollDown();
