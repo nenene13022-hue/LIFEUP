@@ -39,10 +39,15 @@ export function GoalsScreen() {
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {active.map((g) => {
+          {active.map((g, i) => {
             const gm = calcGoalMath(g, budget?.monthlyDiscretionary ?? 0);
             return (
-              <Card key={g.id} className="animate-fade-in" onClick={() => navigate(`/goals/${g.id}`)}>
+              <Card
+                key={g.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
+                onClick={() => navigate(`/goals/${g.id}`)}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-semibold flex items-center gap-2">
                     <span>{g.emoji}</span>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { ScreenHeader, Field, inputClass, Button } from "../../components/ui/primitives";
+import { FloatingOrbs } from "../../components/layout/FloatingOrbs";
 import { useApp } from "../../state/store";
 import type { GoalCategory } from "../../lib/types/models";
 
@@ -44,7 +45,8 @@ export function FinancialProfileScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-10">
+    <div className="relative min-h-screen overflow-hidden flex flex-col px-6 py-10">
+      <FloatingOrbs />
       <ScreenHeader title="בואו נבין את המצב שלך" subtitle="לא חייבים מספר מדויק. הערכה מספיקה." />
 
       <Field label="הכנסה חודשית משוערת">

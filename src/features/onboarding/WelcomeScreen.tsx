@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { LogoMark } from "../../components/Logo";
 import { Button } from "../../components/ui/primitives";
+import { FloatingOrbs } from "../../components/layout/FloatingOrbs";
 import { useApp } from "../../state/store";
 
 export function WelcomeScreen() {
@@ -23,7 +24,8 @@ export function WelcomeScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between px-6 py-14 text-center">
+    <div className="relative min-h-screen overflow-hidden flex flex-col items-center justify-between px-6 py-14 text-center">
+      <FloatingOrbs />
       <div />
       <div className="flex flex-col items-center animate-fade-in">
         <div className="mb-8 drop-shadow-[0_0_40px_rgba(34,211,174,0.35)]">

@@ -1,18 +1,21 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import clsx from "clsx";
 
 export function Card({
   children,
   className,
   onClick,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
+  style?: CSSProperties;
 }) {
   return (
     <div
       onClick={onClick}
+      style={style}
       className={clsx(
         "bg-surface border border-border rounded-xl3 p-4 shadow-card",
         onClick && "tap-scale cursor-pointer active:opacity-90",
@@ -80,16 +83,19 @@ export function Chip({
   selected,
   onClick,
   className,
+  style,
 }: {
   children: ReactNode;
   selected?: boolean;
   onClick?: () => void;
   className?: string;
+  style?: CSSProperties;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      style={style}
       className={clsx(
         "tap-scale rounded-2xl px-4 py-3 text-sm font-medium border transition-colors text-start",
         selected
@@ -132,7 +138,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center text-center py-12 px-6 gap-2 animate-fade-in">
-      <div className="text-5xl mb-2">{emoji}</div>
+      <div className="text-5xl mb-2 animate-float">{emoji}</div>
       <div className="text-lg font-semibold">{title}</div>
       <div className="text-text-secondary text-sm max-w-[26ch]">{subtitle}</div>
       {action && <div className="mt-4 w-full">{action}</div>}

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { ScreenHeader, Field, inputClass, Button, Chip, Card } from "../../components/ui/primitives";
+import { FloatingOrbs } from "../../components/layout/FloatingOrbs";
 import { GOAL_CATEGORIES, goalCategoryMeta } from "../../lib/constants";
 import { useApp } from "../../state/store";
 import { calcGoalMath } from "../../lib/calc/financialEngine";
@@ -78,7 +79,8 @@ export function CreateGoalScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-10">
+    <div className={isOnboarding ? "relative min-h-screen overflow-hidden flex flex-col px-6 py-10" : "min-h-screen flex flex-col px-6 py-10"}>
+      {isOnboarding && <FloatingOrbs />}
       <ScreenHeader title="מה אתה רוצה להשיג?" />
 
       <Field label="שם היעד">

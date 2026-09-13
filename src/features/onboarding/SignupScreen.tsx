@@ -5,6 +5,7 @@ import { Button, Field, inputClass, ScreenHeader } from "../../components/ui/pri
 import { LogoMark } from "../../components/Logo";
 import { useApp } from "../../state/store";
 import { loadGoogleScript, decodeGoogleCredential, getGoogleClientId } from "../../lib/auth/googleAuth";
+import { FloatingOrbs } from "../../components/layout/FloatingOrbs";
 
 export function SignupScreen() {
   const navigate = useNavigate();
@@ -63,7 +64,8 @@ export function SignupScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-10">
+    <div className="relative min-h-screen overflow-hidden flex flex-col px-6 py-10">
+      <FloatingOrbs />
       <div className="flex justify-center mb-8">
         <LogoMark size={56} />
       </div>
