@@ -146,11 +146,14 @@ export function EmptyState({
   );
 }
 
-export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+export function ScreenHeader({ title, subtitle, icon }: { title: string; subtitle?: string; icon?: ReactNode }) {
   return (
-    <div className="mb-5 animate-fade-in">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      {subtitle && <p className="text-text-secondary text-sm mt-1">{subtitle}</p>}
+    <div className="mb-4 animate-fade-in flex items-center gap-3">
+      {icon}
+      <div>
+        <h1 className="text-2xl font-bold leading-tight">{title}</h1>
+        {subtitle && <p className="text-text-secondary text-sm mt-1">{subtitle}</p>}
+      </div>
     </div>
   );
 }

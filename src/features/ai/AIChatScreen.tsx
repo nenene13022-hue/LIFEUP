@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Send, Undo2 } from "lucide-react";
+import { Send, Undo2, Bot } from "lucide-react";
+import { motion } from "framer-motion";
 import { useApp } from "../../state/store";
 import { ScreenHeader, Button } from "../../components/ui/primitives";
 import { callAgent, buildAgentContext, type AgentTurnHistory } from "../../lib/ai/agentClient";
@@ -8,6 +9,39 @@ import { askLifeUp } from "../../lib/ai/lifeupAI";
 import { getQuickReplies } from "../../lib/ai/quickReplies";
 
 const MAX_HISTORY_TURNS = 10;
+
+function AiAvatar({ size = 40 }: { size?: number }) {
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <motion.div
+        className="absolute inset-0 rounded-full bg-gradient-brand opacity-40 blur-md"
+        animate={{ scale: [1, 1.25, 1] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <div
+        className="relative rounded-full bg-gradient-brand text-black flex items-center justify-center"
+        style={{ width: size, height: size }}
+      >
+        <Bot size={size * 0.55} />
+      </div>
+    </div>
+  );
+}
+
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1 px-1 py-1">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="w-1.5 h-1.5 rounded-full bg-text-secondary"
+          animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
+        />
+      ))}
+    </div>
+  );
+}
 
 type Pending =
   | { kind: "confirm_delete"; expenseId: string; summary: string }
@@ -162,31 +196,47 @@ export function AIChatScreen() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)]">
-      <ScreenHeader title="שאל את LIFEUP 🤖" subtitle="אני כאן כדי לעזור לך לקבל החלטות טובות יותר, ולבצע פעולות בשבילך." />
+    <div className="flex flex-col h-[calc(100dvh_-_max(1.5rem,env(safe-area-inset-top))_-_7rem)]">
+      <ScreenHeader
+        icon={<AiAvatar />}
+        title="שאל את LIFEUP"
+        subtitle="אני כאן כדי לעזור לך לקבל החלטות טובות יותר, ולבצע פעולות בשבילך."
+      />
 
       <div ref={listRef} className="flex-1 overflow-y-auto -mx-5 px-5 pb-3">
         {conversations.length === 0 ? (
-          <div className="flex flex-col items-center text-center gap-2 mt-10 px-4">
-            <span className="text-3xl">🤖</span>
-            <p className="text-text-secondary text-sm">אפשר לשאול אותי כל דבר, או לבחור אחת מהתשובות המהירות למטה.</p>
+          <div className="h-full flex flex-col items-center justify-center text-center gap-3 px-4">
+            <AiAvatar size={56} />
+            <p className="text-text-secondary text-sm max-w-[28ch]">
+              אפשר לשאול אותי כל דבר, או לבחור אחת מהתשובות המהירות למטה.
+            </p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {conversations.map((c) => (
-              <div key={c.id} className="flex flex-col gap-2">
+            {conversations.map((c, i) => (
+              <motion.div
+                key={c.id}
+                className="flex flex-col gap-2"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.28, ease: "easeOut", delay: Math.min(i, 6) * 0.03 }}
+              >
                 <div className="self-end max-w-[85%] bg-gradient-brand text-black rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm font-medium">
                   {c.message}
                 </div>
                 <div className="self-start max-w-[85%] bg-surface-2 border border-border rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm whitespace-pre-line">
                   {c.response}
                 </div>
-              </div>
+              </motion.div>
             ))}
             {sending && (
-              <div className="self-start max-w-[85%] bg-surface-2 border border-border rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-text-secondary">
-                חושב...
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="self-start bg-surface-2 border border-border rounded-2xl rounded-tr-sm px-3 py-2"
+              >
+                <TypingDots />
+              </motion.div>
             )}
 
             {pending?.kind === "confirm_delete" && (
@@ -237,12 +287,13 @@ export function AIChatScreen() {
 
       {quickReplies.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 [&::-webkit-scrollbar]:hidden">
-          {quickReplies.map((q) => (
+          {quickReplies.map((q, i) => (
             <button
               key={q}
               onClick={() => submit(q)}
               disabled={sending}
-              className="tap-scale shrink-0 whitespace-nowrap bg-surface-2 border border-border rounded-full px-3.5 py-2 text-xs disabled:opacity-40"
+              className="tap-scale shrink-0 whitespace-nowrap bg-surface-2 border border-border rounded-full px-3.5 py-2 text-xs disabled:opacity-40 animate-fade-in"
+              style={{ animationDelay: `${i * 40}ms`, animationFillMode: "backwards" }}
             >
               {q}
             </button>
